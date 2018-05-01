@@ -7,37 +7,24 @@ const TOKEN_PATH = 'credentials.json';
 var mysql = require('mysql');
 
 
-var http = require('http'),
-    url = require('url'),
-    choices = ["hello world", "goodbye world"];
+var express = require('express');
+var app = express();
 
-http.createServer(function(request, response){
-    var path = url.parse(request.url).pathname;
-    if(path=="/getstring"){
-        console.log("request recieved");
-        var string = choices[Math.floor(Math.random()*choices.length)];
-        console.log("string '" + string + "' chosen");
-        response.writeHead(200, {"Content-Type": "text/plain"});
-        response.end(string);
-        console.log("string sent");
-    } if(path=="/liverpool") {
-        console.log('call liverpool...')
-        init(function(result) {
-            console.log('fin');
-            response.end(result);
-        });
-    } else {
-        fs.readFile('./index.html', function(err, file) {  
-            if(err) {  
-                // write an error response or nothing here  
-                return;  
-            }  
-            response.writeHead(200, { 'Content-Type': 'text/html' });  
-            response.end(file, "utf-8");  
-        });
-    }
-}).listen(8001);
-console.log("server initialized");
+app.get('/liverpool', function(req, res){
+	
+	console.log('call liverpool...')
+	res.header('Content-type','application/json');
+	res.header('Charset','utf8');
+	init(function(result) {
+		console.log('fin');
+		res.jsonp(JSON.stringify(result));
+	});
+});
+
+app.listen(8001);
+console.log('server express initialized');
+
+
 
 function init(callbackLiv) {
     // Load client secrets from a local file.
@@ -209,7 +196,7 @@ function insertLivDrive(rows, callbackLiv) {
                                                     if(err) throw err;
                                                     if(1 === arrIstUdtLen--) {
                                                         console.log('inserted rows: ' + istRows + ', updated rows: ' + udtRows);
-                                                        if(callbackLiv) callbackLiv('inserted rows: ' + istRows + ', updated rows: ' + udtRows);
+                                                        if(callbackLiv) callbackLiv('Registros nuevos: ' + istRows + ', actualizados: ' + udtRows);
                                                         con.end();
                                                     }
                                                 }) ;                                              
